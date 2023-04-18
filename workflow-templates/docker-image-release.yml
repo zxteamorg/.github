@@ -32,6 +32,7 @@ jobs:
       commit_short_sha: ${{ steps.build_vars.outputs.commit_short_sha }}
       build_commit_ref: ${{ steps.build_vars.outputs.build_commit_ref }}
       build_commit_timestamp: ${{ steps.build_vars.outputs.build_commit_timestamp }}
+      build_dockerhub_publish: ${{ steps.build_vars.outputs.build_dockerhub_publish }}
       build_is_release_candidate: ${{ steps.build_vars.outputs.build_is_release_candidate }}
       build_pipeline_url: ${{ steps.build_vars.outputs.build_pipeline_url }}
       build_project_url: ${{ steps.build_vars.outputs.build_project_url }}
@@ -120,10 +121,10 @@ jobs:
         echo "::set-output name=build_tag_version::${BUILD_TAG_VERSION}"
         case "${DOCKERHUB_PUBLISH}" in
           yes|YES)
-            echo "::set-output name=dockerhub_publish::yes"
+            echo "::set-output name=build_dockerhub_publish::yes"
             ;;
           *)
-            echo "::set-output name=dockerhub_publish::no"
+            echo "::set-output name=build_dockerhub_publish::no"
             ;;
         esac
 
@@ -250,8 +251,8 @@ jobs:
     - docker-test
     if: |
       always() &&
-      needs.configure.outputs.dockerhub_publish == 'yes' &&
-      needs.configure.outputs.is_release_candidate == 'no' &&
+      needs.configure.outputs.build_dockerhub_publish == 'yes' &&
+      needs.configure.outputs.build_is_release_candidate == 'no' &&
       !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-latest
